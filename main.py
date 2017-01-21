@@ -204,8 +204,8 @@ def make_m3u():
         f.write('#EXTINF:-1 tvg-id="%s" tvg-name="%s" group-title="English" tvg-logo="%s.png",%s\n' % (id,id,id,channel))
         f.write('%s\n' % url.encode("utf8"))
     f.close()
-    
-    
+
+
 @plugin.route('/export_channels')
 def export_channels():
     channels = plugin.get_storage('channels')
@@ -400,6 +400,12 @@ def folder_streams():
                     while label in streams[id]:
                         label = label + '.'
                     streams[id][label] = file
+
+    f = xbmcvfs.File(file_name,'wb')
+    data = json.dumps(streams,indent=2)
+    f.write(data)
+    f.close()
+
     return streams
 
 @plugin.route('/stream_search/<channel>')
@@ -651,7 +657,7 @@ def channel_player():
     items = []
     for channel in sorted(channels):
         context_items = []
-        context_items.append(('[COLOR yellow]Choose Stream[/COLOR]', 'XBMC.RunPlugin(%s)' % (plugin.url_for(choose_stream, station=channel))))
+        context_items.append(("[COLOR yellow][B]%s[/B][/COLOR] " % 'Choose Stream', 'XBMC.RunPlugin(%s)' % (plugin.url_for(choose_stream, station=channel))))
         context_items.append(("[COLOR yellow][B]%s[/B][/COLOR] " % 'Add Channel', 'XBMC.RunPlugin(%s)' % (plugin.url_for(add_channel))))
         context_items.append(("[COLOR yellow][B]%s[/B][/COLOR] " % 'Remove Channel', 'XBMC.RunPlugin(%s)' % (plugin.url_for(remove_this_channel, channel=channel))))
         context_items.append(("[COLOR yellow][B]%s[/B][/COLOR] " % 'Import Channels', 'XBMC.RunPlugin(%s)' % (plugin.url_for(import_channels))))
