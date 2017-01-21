@@ -1,0 +1,9 @@
+# Addon Name: Exodus
+# Addon id: plugin.video.exodus
+# Addon Provider: Exodus
+msgid ""
+msgstr ""
+
+msgctxt "#32001"
+msgid "Port"
+msgstr ""
