@@ -397,9 +397,7 @@ def folder_streams():
                 if f["filetype"] == "file":
                     label = remove_formatting(f["label"])
                     file = f["file"]
-                    while label in streams[id]:
-                        label = label + '.'
-                    streams[id][label] = file
+                    streams[id][file] = label
 
     f = xbmcvfs.File(file_name,'wb')
     data = json.dumps(streams,indent=2)
@@ -448,9 +446,7 @@ def stream_search(channel):
                 if f["filetype"] == "file":
                     label = remove_formatting(f["label"])
                     file = f["file"]
-                    while label in streams[id]:
-                        label = label + '.'
-                    streams[id][label] = file
+                    streams[id][file] = label
 
 
     f = xbmcvfs.File(file_name,'wb')
@@ -511,14 +507,15 @@ def choose_stream(station):
     found_streams = {}
     if addon == 0:
         for a in sorted(addons):
-            for c in sorted(addons[a]):
+            for f in sorted(addons[a]):
+                c = addons[a][f]
                 n = c.decode("utf8").lower().replace(' ','')
                 if n:
                     label = "[%s] %s" % (a,c)
                     if (s.startswith(n) or n.startswith(s)):
-                        found_streams[label] = addons[a][c]
+                        found_streams[label] = f
                     elif (sword.startswith(n) or n.startswith(sword)):
-                        found_streams[label] = addons[a][c]
+                        found_streams[label] = f
 
         stream_list = sorted(found_streams)
         if stream_list:
@@ -643,11 +640,13 @@ def choose_stream(station):
         return
     else:
         addon_id = addon_labels[addon]
-        channel_labels = sorted(addons[addon_id])
+        addon_channels = addons[addon_id]
+        label_stream = sorted([[addon_channels[x],x] for x in addon_channels])
+        channel_labels = [x[0] for x in label_stream]
         channel = d.select("["+addon_id+"] "+station,channel_labels)
         if channel == -1:
             return
-        streams[station] = addons[addon_id][channel_labels[channel]]
+        streams[station] = label_stream[channel][1]
         plugin.set_resolved_url(streams[station])
 
 @plugin.route('/channel_player')
