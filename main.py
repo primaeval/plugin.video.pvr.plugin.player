@@ -176,7 +176,7 @@ def import_channels():
                 if len(channel_url) == 2:
                     name = channel_url[0]
                     channels[name] = ""
-    elif filename.endswith('.xml'):
+    elif filename.endswith('.xml') or filename.endswith('.xmltv'):
         data = xbmcvfs.File(filename,'rb').read()
         match = re.compile(
             '<channel.*?id="(.*?)">.*?<display-name.*?>(.*?)</display-name>',
@@ -356,6 +356,43 @@ def subscribe():
             'context_menu': context_items,
         })
     return items
+
+@plugin.route('/service')
+def service():
+    file_name = 'special://profile/addon_data/plugin.video.pvr.plugin.player/cache.json'
+    folders = plugin.get_storage('folders')
+    last_read = plugin.get_storage('last_read')
+    streams = {}
+    f = xbmcvfs.File(file_name,'rb')
+    data = f.read()
+    f.close()
+    if data:
+        streams = json.loads(data)
+
+    for folder in folders:
+        path = folder
+        id = folders[folder]
+        now = datetime.datetime.now()
+        last_read[folder] = now.isoformat()
+
+        if not id in streams:
+            streams[id] = {}
+        try: response = RPC.files.get_directory(media="files", directory=path)
+        except: continue
+        if not 'error' in response:
+            if 'files' not in response:
+                continue
+            files = response["files"]
+            for f in files:
+                if f["filetype"] == "file":
+                    label = remove_formatting(f["label"])
+                    file = f["file"]
+                    streams[id][file] = label
+
+    f = xbmcvfs.File(file_name,'wb')
+    data = json.dumps(streams,indent=2)
+    f.write(data)
+    f.close()
 
 @plugin.route('/folder_streams')
 def folder_streams():

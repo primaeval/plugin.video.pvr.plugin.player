@@ -1,7 +1,15 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <settings>
+<category label="Main">
     <setting id="Port" type="text" label="Port" default="60666"/>
     <setting id="LastPlay" type="text" default="0" visible="false"/>
-    <setting type="sep"/>
+    <setting type="lsep" label=""/>
     <setting id="cache.hours" label="Refresh Folders Period (hours)" type="number" default="0" />
+</category>
+<category label="Timer">
+    <setting id="startup" label="Startup" type="bool" default="false" />
+    <setting id="timer" type="select" label="Timer Type" default="None" values="None|Time" />
+    <setting id="time" type="time" label="Time" default="03:33" visible="eq(-1,Time)"/>
+    <setting id="serviced" type="text" label="Service Time" default="2000-01-01 00:00:00" visible="false"/>
+</category>
 </settings>
