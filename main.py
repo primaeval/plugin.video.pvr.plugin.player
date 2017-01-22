@@ -412,11 +412,10 @@ def folder_streams():
         now = datetime.datetime.now()
         last_time = last_read.get(folder)
         if last_time:
-            format = "%Y-%m-%dT%H:%M:%S.%f"
             try:
-                last_time = datetime.datetime.strptime(last_time, format)
-            except TypeError:
-                last_time = datetime.datetime(*(time.strptime(last_time, format)[0:6]))
+                last_time = datetime.datetime.strptime(last_time, '%Y-%m-%dT%H:%M:%S.%f')
+            except ValueError:
+                last_time = datetime.datetime.strptime(last_time, '%Y-%m-%dT%H:%M:%S')
             hours = int(plugin.get_setting('cache.hours'))
             if last_time > now - datetime.timedelta(hours=hours):
                 continue
@@ -461,11 +460,10 @@ def stream_search(channel):
         now = datetime.datetime.now()
         last_time = last_read.get(folder)
         if last_time:
-            format = "%Y-%m-%dT%H:%M:%S.%f"
             try:
-                last_time = datetime.datetime.strptime(last_time, format)
-            except TypeError:
-                last_time = datetime.datetime(*(time.strptime(last_time, format)[0:6]))
+                last_time = datetime.datetime.strptime(last_time, '%Y-%m-%dT%H:%M:%S.%f')
+            except ValueError:
+                last_time = datetime.datetime.strptime(last_time, '%Y-%m-%dT%H:%M:%S')
             hours = int(plugin.get_setting('cache.hours'))
             if last_time > now - datetime.timedelta(hours=hours):
                 continue
