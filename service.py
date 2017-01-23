@@ -26,9 +26,34 @@ def runService():
     log("[plugin.video.pvr.plugin.player] Finished Service...")
     now = datetime.datetime.now()
     ADDON.setSetting('serviced', str(now + timedelta(hours=0)).split('.')[0])
+    
+class KodiPlayer(xbmc.Player):
+    def __init__(self, *args, **kwargs):
+        xbmc.Player.__init__(self)
+        self.file = None
+
+    def onPlayBackStarted(self):
+        self.file = self.getPlayingFile()    
+        
+    @classmethod
+    def onPlayBackStopped(self):        
+        self.file = None
 
 class myHandler(BaseHTTPRequestHandler):
-    def do_GET(self):
+    def do_HEAD(s):
+        url = s.path[2:]
+        player_monitor.stop()
+        player_monitor.play(url)
+        while(player_monitor.file != None): #Timeout
+            time.sleep(1)
+        s.send_response(301)
+        #s.send_header("Location", 'http://vs-hls-uk-live.akamaized.net/pool_30/live/bbc_one_hd/bbc_one_hd.isml/bbc_one_hd-pa4%3d128000-video%3d827008.m3u8')
+        s.send_header("Location", player_monitor.file)
+        s.end_headers()
+    def do_GET(s):
+        s.do_HEAD()
+    '''
+    def do_GETx(self):
         self.send_response(200)
         self.send_header('Content-type','text/html')
         self.end_headers()
@@ -45,8 +70,9 @@ class myHandler(BaseHTTPRequestHandler):
         listitem.setInfo(type="Video", infoLabels={"mediatype": "movie", "title": "LiveTV"})
         xbmc.Player().play(url, listitem)
         return
-
-
+    '''
+    
+player_monitor = KodiPlayer()
 monitor = xbmc.Monitor()
 timer = ADDON.getSetting('timer')
 try:
