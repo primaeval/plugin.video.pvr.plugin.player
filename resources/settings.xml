@@ -11,5 +11,12 @@
     <setting id="timer" type="select" label="Timer Type" default="None" values="None|Time" />
     <setting id="time" type="time" label="Time" default="03:33" visible="eq(-1,Time)"/>
     <setting id="serviced" type="text" label="Service Time" default="2000-01-01 00:00:00" visible="false"/>
+    <setting type="lsep" label="Update Channels"/>
+    <setting id="channels.type" label="Channels Source" type="enum" default="0" values="None|File|Url"/>
+    <setting id="channels.file" label="Channels File" type="file" visible="eq(-1,1)" default=''/>
+    <setting id="channels.url" label="Channels Url" type="text" visible="eq(-2,2)" default=''/>
+    <setting id="channels.clear" label="Clear Channels First" type="bool" default='false'/>
+    <setting type="sep"/>
+    <setting id="service.show" label="Show Service Menu Item" type="bool" default='false'/>
 </category>
 </settings>

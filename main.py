@@ -359,6 +359,34 @@ def subscribe():
 
 @plugin.route('/service')
 def service():
+    if plugin.get_setting('channels.type') != '0':
+        channels = plugin.get_storage('channels')
+        ids = plugin.get_storage('ids')
+        if plugin.get_setting('channels.clear') == 'true':
+            channels.clear()
+            ids.clear()
+        if plugin.get_setting('channels.type') == '1':
+            filename = plugin.get_setting('channels.file')
+        else:
+            filename = plugin.get_setting('channels.url')
+        if filename.endswith('.ini'):
+            lines = xbmcvfs.File(filename,'rb').read().splitlines()
+            for line in lines:
+                if not line.startswith('[') and not line.startswith('#') and "=" in line:
+                    channel_url = line.split('=',1)
+                    if len(channel_url) == 2:
+                        name = channel_url[0]
+                        channels[name] = ""
+                        log(name)
+        elif filename.endswith('.xml') or filename.endswith('.xmltv'):
+            data = xbmcvfs.File(filename,'rb').read()
+            match = re.compile(
+                '<channel.*?id="(.*?)">.*?<display-name.*?>(.*?)</display-name>',
+                flags=(re.DOTALL | re.MULTILINE)
+                ).findall(data)
+            for id,name in match:
+                channels[name] = ""
+                ids[name] = id
     file_name = 'special://profile/addon_data/plugin.video.pvr.plugin.player/cache.json'
     folders = plugin.get_storage('folders')
     last_read = plugin.get_storage('last_read')
@@ -736,6 +764,14 @@ def index():
         'thumbnail':get_icon_path('tv'),
         'context_menu': context_items,
     })
+    if plugin.get_setting('service.show') == 'true':
+        items.append(
+        {
+            'label': "Service",
+            'path': plugin.url_for('service'),
+            'thumbnail':get_icon_path('settings'),
+            'context_menu': context_items,
+        })
     return items
 
 if __name__ == '__main__':
