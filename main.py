@@ -249,7 +249,7 @@ def folder(id,path):
     for label in sorted(dirs):
         folder_path = dirs[label]
         context_items = []
-        if path in folders:
+        if folder_path in folders:
             fancy_label = "[COLOR yellow][B]%s[/B][/COLOR] " % label
             context_items.append(("[COLOR yellow][B]%s[/B][/COLOR] " % 'Remove Folder', 'XBMC.RunPlugin(%s)' % (plugin.url_for(remove_folder, path=folder_path))))
         else:
@@ -520,8 +520,10 @@ def stream_search(channel):
                 if f["filetype"] == "file":
                     label = remove_formatting(f["label"])
                     file = f["file"]
-                    streams[id][file] = label #"%s - %s" % (folder_name,label)
-
+                    if plugin.get_setting('folder.name') == 'true':
+                        streams[id][file] = "%s - %s" % (folder_name,label)
+                    else:
+                        streams[id][file] = label
 
     f = xbmcvfs.File(file_name,'wb')
     data = json.dumps(streams,indent=2)
@@ -537,7 +539,11 @@ def stream_search(channel):
             label_search = label.decode("utf8").lower().replace(' ','')
             if label_search in channel_search or channel_search in label_search:
                 stream_list.append((id,f,label))
-    labels = ["[%s] %s" % (x[0],x[2]) for x in stream_list]
+    if plugin.get_setting('folder.name') == 'true':
+        labels = ["%s" % (x[2]) for x in stream_list]
+    else:
+        labels = ["[%s] %s" % (x[0],x[2]) for x in stream_list]
+
     d = xbmcgui.Dialog()
     which = d.select(channel, labels)
     if which == -1:
