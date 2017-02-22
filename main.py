@@ -103,16 +103,22 @@ def pvr_unsubscribe():
     plugin.set_setting("pvr.subscribe","false")
     xbmc.executebuiltin('Container.Refresh')
 
-@plugin.route('/add_folder/<id>/<path>')
-def add_folder(id,path):
+@plugin.route('/add_folder/<id>/<name>/<path>')
+def add_folder(id,name,path):
     folders = plugin.get_storage('folders')
     folders[path] = id
+    folder_names = plugin.get_storage('folder_names')
+    folder_names[path] = name
     xbmc.executebuiltin('Container.Refresh')
 
-@plugin.route('/remove_folder/<id>/<path>')
-def remove_folder(id,path):
+@plugin.route('/remove_folder/<path>')
+def remove_folder(path):
     folders = plugin.get_storage('folders')
-    del folders[path]
+    if path in folders:
+        del folders[path]
+    folder_names = plugin.get_storage('folder_names')
+    if path in folder_names:
+        del folder_names[path]
     xbmc.executebuiltin('Container.Refresh')
 
 @plugin.route('/clear_cache')
@@ -125,6 +131,8 @@ def clear_cache():
 def clear():
     folders = plugin.get_storage('folders')
     folders.clear()
+    folder_names = plugin.get_storage('folder_names')
+    folder_names.clear()
 
 @plugin.route('/add_channel')
 def add_channel():
@@ -243,10 +251,10 @@ def folder(id,path):
         context_items = []
         if path in folders:
             fancy_label = "[COLOR yellow][B]%s[/B][/COLOR] " % label
-            context_items.append(("[COLOR yellow][B]%s[/B][/COLOR] " % 'Remove Folder', 'XBMC.RunPlugin(%s)' % (plugin.url_for(remove_folder, id=id, path=folder_path))))
+            context_items.append(("[COLOR yellow][B]%s[/B][/COLOR] " % 'Remove Folder', 'XBMC.RunPlugin(%s)' % (plugin.url_for(remove_folder, path=folder_path))))
         else:
             fancy_label = "[B]%s[/B]" % label
-            context_items.append(("[COLOR yellow][B]%s[/B][/COLOR] " % 'Add Folder', 'XBMC.RunPlugin(%s)' % (plugin.url_for(add_folder, id=id, path=folder_path))))
+            context_items.append(("[COLOR yellow][B]%s[/B][/COLOR] " % 'Add Folder', 'XBMC.RunPlugin(%s)' % (plugin.url_for(add_folder, id=id, name=label, path=folder_path))))
         items.append(
         {
             'label': fancy_label,
@@ -344,10 +352,10 @@ def subscribe():
         context_items = []
         if id in ids:
             fancy_label = "[COLOR yellow][B]%s[/B][/COLOR] " % label
-            context_items.append(("[COLOR yellow][B]%s[/B][/COLOR] " % 'Remove Folder', 'XBMC.RunPlugin(%s)' % (plugin.url_for(remove_folder, id=id, path=path))))
+            context_items.append(("[COLOR yellow][B]%s[/B][/COLOR] " % 'Remove Folder', 'XBMC.RunPlugin(%s)' % (plugin.url_for(remove_folder, path=path))))
         else:
             fancy_label = "[B]%s[/B]" % label
-            context_items.append(("[COLOR yellow][B]%s[/B][/COLOR] " % 'Add Folder', 'XBMC.RunPlugin(%s)' % (plugin.url_for(add_folder, id=id, path=path))))
+            context_items.append(("[COLOR yellow][B]%s[/B][/COLOR] " % 'Add Folder', 'XBMC.RunPlugin(%s)' % (plugin.url_for(add_folder, id=id, name=label, path=path))))
         items.append(
         {
             'label': fancy_label,
@@ -474,6 +482,7 @@ def folder_streams():
 def stream_search(channel):
     file_name = 'special://profile/addon_data/plugin.video.pvr.plugin.player/cache.json'
     folders = plugin.get_storage('folders')
+    folder_names = plugin.get_storage('folder_names')
     last_read = plugin.get_storage('last_read')
     streams = {}
     f = xbmcvfs.File(file_name,'rb')
@@ -483,8 +492,10 @@ def stream_search(channel):
         streams = json.loads(data)
 
     for folder in folders:
+        log(folder)
         path = folder
         id = folders[folder]
+        folder_name = folder_names.get(folder,'')
         now = datetime.datetime.now()
         last_time = last_read.get(folder)
         if last_time:
@@ -509,7 +520,7 @@ def stream_search(channel):
                 if f["filetype"] == "file":
                     label = remove_formatting(f["label"])
                     file = f["file"]
-                    streams[id][file] = label
+                    streams[id][file] = label #"%s - %s" % (folder_name,label)
 
 
     f = xbmcvfs.File(file_name,'wb')
