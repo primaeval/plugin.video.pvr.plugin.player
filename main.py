@@ -399,11 +399,12 @@ def service():
     folders = plugin.get_storage('folders')
     last_read = plugin.get_storage('last_read')
     streams = {}
-    f = xbmcvfs.File(file_name,'rb')
-    data = f.read()
-    f.close()
-    if data:
-        streams = json.loads(data)
+    if plugin.get_setting('folders.clear') == 'false':
+        f = xbmcvfs.File(file_name,'rb')
+        data = f.read()
+        f.close()
+        if data:
+            streams = json.loads(data)
 
     for folder in folders:
         path = folder
