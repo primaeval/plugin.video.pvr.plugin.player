@@ -385,7 +385,7 @@ def service():
                     if len(channel_url) == 2:
                         name = channel_url[0]
                         channels[name] = ""
-                        log(name)
+                        #log(name)
         elif filename.endswith('.xml') or filename.endswith('.xmltv'):
             data = xbmcvfs.File(filename,'rb').read()
             match = re.compile(
@@ -493,7 +493,7 @@ def stream_search(channel):
         streams = json.loads(data)
 
     for folder in folders:
-        log(folder)
+        #log(folder)
         path = folder
         id = folders[folder]
         folder_name = folder_names.get(folder,'')
@@ -504,6 +504,8 @@ def stream_search(channel):
                 last_time = datetime.datetime.strptime(last_time, '%Y-%m-%dT%H:%M:%S.%f')
             except ValueError:
                 last_time = datetime.datetime.strptime(last_time, '%Y-%m-%dT%H:%M:%S')
+            except:
+                last_time = now
             hours = int(plugin.get_setting('cache.hours'))
             if last_time > now - datetime.timedelta(hours=hours):
                 continue
