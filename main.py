@@ -542,17 +542,21 @@ def stream_search(channel):
             label_search = label.decode("utf8").lower().replace(' ','')
             if label_search in channel_search or channel_search in label_search:
                 stream_list.append((id,f,label))
-    if plugin.get_setting('folder.name') == 'true':
-        labels = ["%s" % (x[2]) for x in stream_list]
+    if len(stream_list) == 1:
+        stream_name = stream_list[0][2]
+        stream_link = stream_list[0][1]
     else:
-        labels = ["[%s] %s" % (x[0],x[2]) for x in stream_list]
+        if plugin.get_setting('folder.name') == 'true':
+            labels = ["%s" % (x[2]) for x in stream_list]
+        else:
+            labels = ["[%s] %s" % (x[0],x[2]) for x in stream_list]
 
-    d = xbmcgui.Dialog()
-    which = d.select(channel, labels)
-    if which == -1:
-        return
-    stream_name = stream_list[which][2]
-    stream_link = stream_list[which][1]
+        d = xbmcgui.Dialog()
+        which = d.select(channel, labels)
+        if which == -1:
+            return
+        stream_name = stream_list[which][2]
+        stream_link = stream_list[which][1]
     plugin.set_resolved_url(stream_link)
 
 
