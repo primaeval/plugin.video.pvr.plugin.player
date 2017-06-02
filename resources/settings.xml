@@ -7,6 +7,7 @@
     <setting id="folder.name" label="Show Folder Name in Search" type="bool" default="false" />
     <setting type="sep"/>
     <setting id="cache.hours" label="Refresh Folders Period (hours)" type="number" default="0" />
+    <setting id="cache.clear" label="Clear Cache on Every Search" type="bool" default="false" />
 </category>
 <category label="Timer">
     <setting id="startup" label="Startup" type="bool" default="false" />
