@@ -9,7 +9,7 @@ import datetime, time
 from datetime import date, timedelta
 import os
 # This is a throwaway variable to deal with a python bug
-#throwaway = datetime.datetime.strptime('20110101','%Y%m%d')
+throwaway = datetime.datetime.strptime('20110101','%Y%m%d')
 
 ADDON = Addon("plugin.video.pvr.plugin.player")
 PORT_NUMBER = int(ADDON.getSetting("Port"))

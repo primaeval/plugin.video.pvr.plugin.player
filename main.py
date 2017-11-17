@@ -749,7 +749,6 @@ def channel_player():
         context_items.append(("[COLOR yellow][B]%s[/B][/COLOR] " % 'Remove Channel', 'XBMC.RunPlugin(%s)' % (plugin.url_for(remove_this_channel, channel=channel))))
         context_items.append(("[COLOR yellow][B]%s[/B][/COLOR] " % 'Import Channels', 'XBMC.RunPlugin(%s)' % (plugin.url_for(import_channels))))
         context_items.append(("[COLOR yellow][B]%s[/B][/COLOR] " % 'Clear Channels', 'XBMC.RunPlugin(%s)' % (plugin.url_for(clear_channels))))
-
         items.append(
         {
             'label': channel,
@@ -757,6 +756,8 @@ def channel_player():
             'thumbnail':get_icon_path('tv'),
             'is_playable': True,
             'context_menu': context_items,
+            'info_type': 'Video',
+            'info':{"mediatype": "movie", "title": "LiveTV"}
         })
     return items
 
