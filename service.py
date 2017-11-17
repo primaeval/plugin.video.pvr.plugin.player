@@ -7,12 +7,15 @@ from xbmcaddon import Addon
 from threading import Thread
 import datetime, time
 from datetime import date, timedelta
-
+import os
 # This is a throwaway variable to deal with a python bug
-throwaway = datetime.datetime.strptime('20110101','%Y%m%d')
+#throwaway = datetime.datetime.strptime('20110101','%Y%m%d')
 
 ADDON = Addon("plugin.video.pvr.plugin.player")
 PORT_NUMBER = int(ADDON.getSetting("Port"))
+
+dummy_vid_path = os.path.join( Addon().getAddonInfo('path'), "resources", "dummy.mp4")
+
 
 def log(x):
     xbmc.log(repr(x))
@@ -29,9 +32,14 @@ def runService():
 
 class myHandler(BaseHTTPRequestHandler):
     def do_GET(self):
+        print 'HWA:'
+        print dummy_vid_path
+        f = open(dummy_vid_path, 'rb')
         self.send_response(200)
-        self.send_header('Content-type','text/html')
+        self.send_header('Content-Type', 'video/mp4')
         self.end_headers()
+        self.wfile.write(f.read())
+        f.close()
 
         Last = int(ADDON.getSetting("LastPlay"))
         Now = int(time.time())
