@@ -254,7 +254,7 @@ def folder(id,path):
             context_items.append(("[COLOR yellow][B]%s[/B][/COLOR] " % 'Remove Folder', 'XBMC.RunPlugin(%s)' % (plugin.url_for(remove_folder, path=folder_path))))
         else:
             fancy_label = "[B]%s[/B]" % label
-            context_items.append(("[COLOR yellow][B]%s[/B][/COLOR] " % 'Add Folder', 'XBMC.RunPlugin(%s)' % (plugin.url_for(add_folder, id=id, name=label, path=folder_path))))
+            context_items.append(("[COLOR yellow][B]%s[/B][/COLOR] " % 'Add Folder', 'XBMC.RunPlugin(%s)' % (plugin.url_for(add_folder, id=id, name=label.encode("utf8"), path=folder_path))))
         items.append(
         {
             'label': fancy_label,
@@ -355,7 +355,7 @@ def subscribe():
             context_items.append(("[COLOR yellow][B]%s[/B][/COLOR] " % 'Remove Folder', 'XBMC.RunPlugin(%s)' % (plugin.url_for(remove_folder, path=path))))
         else:
             fancy_label = "[B]%s[/B]" % label
-            context_items.append(("[COLOR yellow][B]%s[/B][/COLOR] " % 'Add Folder', 'XBMC.RunPlugin(%s)' % (plugin.url_for(add_folder, id=id, name=label, path=path))))
+            context_items.append(("[COLOR yellow][B]%s[/B][/COLOR] " % 'Add Folder', 'XBMC.RunPlugin(%s)' % (plugin.url_for(add_folder, id=id, name=label.encode("utf8"), path=path))))
         items.append(
         {
             'label': fancy_label,
@@ -770,7 +770,7 @@ def index():
     context_items.append(("[COLOR yellow][B]%s[/B][/COLOR] " % 'Reset Cache', 'XBMC.RunPlugin(%s)' % (plugin.url_for(clear_cache))))
     items.append(
     {
-        'label': "Folders",
+        'label': u"Folders",
         'path': plugin.url_for('subscribe'),
         'thumbnail':get_icon_path('tv'),
         'context_menu': context_items,
