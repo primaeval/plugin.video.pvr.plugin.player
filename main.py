@@ -14,6 +14,12 @@ import time
 import xbmc,xbmcaddon,xbmcvfs,xbmcgui
 import xbmcplugin
 
+# This is a throwaway variable to deal with a python bug
+try:
+    throwaway = datetime.datetime.strptime('20110101','%Y%m%d')
+except:
+    pass
+
 plugin = Plugin()
 big_list_view = False
 
