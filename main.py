@@ -540,13 +540,13 @@ def stream_search(channel):
     f.write(data)
     f.close()
 
-    channel_search = channel.decode("utf8").lower().replace(' ','')
+    channel_search = channel.lower().replace(' ','')
     stream_list = []
     for id in sorted(streams):
         files = streams[id]
         for f in sorted(files, key=lambda k: files[k]):
             label = files[f]
-            label_search = label.decode("utf8").lower().replace(' ','')
+            label_search = label.lower().replace(' ','')
             if label_search in channel_search or channel_search in label_search:
                 stream_list.append((id,f,label))
     if len(stream_list) == 1:
