@@ -27,7 +27,7 @@ def log2(v):
     xbmc.log(repr(v))
 
 def log(v):
-    xbmc.log(re.sub(',',',\n',repr(v)))
+    xbmc.log(re.sub(',',',\n',repr(v)),xbmc.LOGERROR)
 
 def get_icon_path(icon_name):
     addon_path = xbmcaddon.Addon().getAddonInfo("path")
@@ -603,7 +603,7 @@ def choose_stream(station):
         for a in sorted(addons):
             for f in sorted(addons[a]):
                 c = addons[a][f]
-                n = c.decode("utf8").lower().replace(' ','')
+                n = c.lower().replace(' ','')
                 if n:
                     label = "[%s] %s" % (a,c)
                     if (s.startswith(n) or n.startswith(s)):
