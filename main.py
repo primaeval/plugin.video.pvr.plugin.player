@@ -654,7 +654,7 @@ def choose_stream(station):
                 link = links[selected]
                 streams[station] = link[1]
                 name = link[0]
-                plugin.set_resolved_url(streams[station])
+                return
     elif addon == 2:
         playlist = d.browse(1, 'Playlist: %s' % station, 'files', '', False, False)
         if not playlist:
