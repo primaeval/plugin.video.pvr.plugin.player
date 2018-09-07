@@ -21,7 +21,7 @@ dummy_vid_path = os.path.join( Addon().getAddonInfo('path'), "resources", "dummy
 
 
 def log(x):
-    xbmc.log(repr(x))
+    xbmc.log(repr(x),xbmc.LOGERROR)
 
 def total_seconds(td):
     return (td.microseconds + (td.seconds + td.days * 24 * 3600) * 10**6) / 10**6
@@ -35,6 +35,31 @@ def runService():
 
 class myHandler(BaseHTTPRequestHandler):
     def do_GET(self):
+        url = self.path[2:]
+        log(url)
+        if not url.startswith('http'):
+            player = xbmc.Player()
+            player.stop()
+            log("play")
+            player.play(url)
+            count = 5
+            url = ""
+            while count:
+                log(count)
+                count = count - 1
+                time.sleep(1)
+                if player.isPlaying():
+                    url = player.getPlayingFile()
+                    log(("isplaying",url))
+                    break
+            log("stop")
+            player.stop()
+        log(url)
+        self.send_response(301)
+        self.send_header('Location', url)
+        self.end_headers()
+        log("end headers")
+        '''
         print 'HWA:'
         print dummy_vid_path
         f = open(dummy_vid_path, 'rb')
@@ -56,6 +81,7 @@ class myHandler(BaseHTTPRequestHandler):
         listitem.setInfo(type="Video", infoLabels={"mediatype": "movie", "title": "LiveTV"})
         xbmc.Player().play(url, listitem)
         return
+        '''
 
 
 monitor = xbmc.Monitor()
