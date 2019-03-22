@@ -27,7 +27,7 @@ def log2(v):
     xbmc.log(repr(v))
 
 def log(v):
-    xbmc.log(re.sub(',',',\n',repr(v)),xbmc.LOGERROR)
+    xbmc.log(repr(v),xbmc.LOGERROR)
 
 def get_icon_path(icon_name):
     addon_path = xbmcaddon.Addon().getAddonInfo("path")
@@ -487,6 +487,13 @@ def folder_streams():
 
 @plugin.route('/stream_search/<channel>')
 def stream_search(channel):
+    return stream_search2(channel,regex=False)
+
+@plugin.route('/stream_search_regex/<channel>')
+def stream_search_regex(channel):
+    return stream_search2(channel,regex=True)
+
+def stream_search2(channel,regex=False):
     file_name = 'special://profile/addon_data/plugin.video.pvr.plugin.player/cache.json'
     folders = plugin.get_storage('folders')
     folder_names = plugin.get_storage('folder_names')
@@ -540,15 +547,22 @@ def stream_search(channel):
     f.write(data)
     f.close()
 
-    channel_search = channel.lower().replace(' ','')
+    channel_search = channel.lower()
+    if not regex:
+        channel_search = channel_search.replace(' ','')
     stream_list = []
     for id in sorted(streams):
         files = streams[id]
         for f in sorted(files, key=lambda k: files[k]):
             label = files[f]
-            label_search = label.lower().replace(' ','')
-            if label_search in channel_search or channel_search in label_search:
-                stream_list.append((id,f,label))
+            if regex:
+                #log((label.lower(),channel_search,re.search(label.lower(),channel_search)))
+                if re.search(channel_search,label.lower(),):
+                    stream_list.append((id,f,label))
+            else:
+                label_search = label.lower().replace(' ','')
+                if label_search in channel_search or channel_search in label_search:
+                    stream_list.append((id,f,label))
     if len(stream_list) == 1:
         stream_name = stream_list[0][2]
         stream_link = stream_list[0][1]
