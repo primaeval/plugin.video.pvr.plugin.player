@@ -218,7 +218,18 @@ def make_m3u():
         f.write('#EXTINF:-1 tvg-id="%s" tvg-name="%s" group-title="English" tvg-logo="%s.png",%s\n' % (id,id,id,channel))
         f.write('%s\n' % url.encode("utf8"))
     f.close()
-
+    f = xbmcvfs.File('special://profile/addon_data/plugin.video.pvr.plugin.player/channels_regex.m3u','wb')
+    f.write('#EXTM3U\n')
+    for channel in sorted(channels):
+        id = ids.get(channel,channel)
+        url = channels.get(channel)
+        if not url:
+            url = plugin.url_for(play_channel,station=channel)
+        if url.startswith('plugin'):
+            url = ("http://localhost:%s/?" % plugin.get_setting('Port')) + url
+        f.write('#EXTINF:-1 tvg-id="%s" tvg-name="%s" group-title="English" tvg-logo="%s.png",%s\n' % (id,id,id,channel))
+        f.write('%s\n' % url.replace('stream_search','stream_search_regex').encode("utf8"))
+    f.close()
 
 @plugin.route('/export_channels')
 def export_channels():
