@@ -2,7 +2,7 @@ from rpc import RPC
 from types import *
 from xbmcswift2 import Plugin
 from xbmcswift2 import actions
-import HTMLParser
+from html.parser import HTMLParser
 import datetime
 import json
 import os
@@ -32,7 +32,6 @@ def log(v):
 def get_icon_path(icon_name):
     addon_path = xbmcaddon.Addon().getAddonInfo("path")
     return os.path.join(addon_path, 'resources', 'img', icon_name+".png")
-
 
 def remove_formatting(label):
     label = re.sub(r"\[/?[BI]\]",'',label)
@@ -231,6 +230,7 @@ def make_m3u():
         f.write('%s\n' % url.replace('stream_search','stream_search_regex').encode("utf8"))
     f.close()
 
+
 @plugin.route('/export_channels')
 def export_channels():
     channels = plugin.get_storage('channels')
@@ -268,10 +268,10 @@ def folder(id,path):
         context_items = []
         if folder_path in folders:
             fancy_label = "[COLOR yellow][B]%s[/B][/COLOR] " % label
-            context_items.append(("[COLOR yellow][B]%s[/B][/COLOR] " % 'Remove Folder', 'XBMC.RunPlugin(%s)' % (plugin.url_for(remove_folder, path=folder_path))))
+            context_items.append(("[COLOR yellow][B]%s[/B][/COLOR] " % 'Remove Folder', 'RunPlugin(%s)' % (plugin.url_for(remove_folder, path=folder_path))))
         else:
             fancy_label = "[B]%s[/B]" % label
-            context_items.append(("[COLOR yellow][B]%s[/B][/COLOR] " % 'Add Folder', 'XBMC.RunPlugin(%s)' % (plugin.url_for(add_folder, id=id, name=label.encode("utf8"), path=folder_path))))
+            context_items.append(("[COLOR yellow][B]%s[/B][/COLOR] " % 'Add Folder', 'RunPlugin(%s)' % (plugin.url_for(add_folder, id=id, name=label.encode("utf8"), path=folder_path))))
         items.append(
         {
             'label': fancy_label,
@@ -349,10 +349,10 @@ def subscribe():
     label = "PVR"
     if pvr == "true":
         fancy_label = "[COLOR yellow][B]%s[/B][/COLOR] " % label
-        context_items.append(("[COLOR yellow][B]%s[/B][/COLOR] " % 'Remove Folder', 'XBMC.RunPlugin(%s)' % (plugin.url_for(pvr_unsubscribe))))
+        context_items.append(("[COLOR yellow][B]%s[/B][/COLOR] " % 'Remove Folder', 'RunPlugin(%s)' % (plugin.url_for(pvr_unsubscribe))))
     else:
         fancy_label = "[B]%s[/B]" % label
-        context_items.append(("[COLOR yellow][B]%s[/B][/COLOR] " % 'Add Folder', 'XBMC.RunPlugin(%s)' % (plugin.url_for(pvr_subscribe))))
+        context_items.append(("[COLOR yellow][B]%s[/B][/COLOR] " % 'Add Folder', 'RunPlugin(%s)' % (plugin.url_for(pvr_subscribe))))
     items.append(
     {
         'label': fancy_label,
@@ -369,10 +369,10 @@ def subscribe():
         context_items = []
         if id in ids:
             fancy_label = "[COLOR yellow][B]%s[/B][/COLOR] " % label
-            context_items.append(("[COLOR yellow][B]%s[/B][/COLOR] " % 'Remove Folder', 'XBMC.RunPlugin(%s)' % (plugin.url_for(remove_folder, path=path))))
+            context_items.append(("[COLOR yellow][B]%s[/B][/COLOR] " % 'Remove Folder', 'RunPlugin(%s)' % (plugin.url_for(remove_folder, path=path))))
         else:
             fancy_label = "[B]%s[/B]" % label
-            context_items.append(("[COLOR yellow][B]%s[/B][/COLOR] " % 'Add Folder', 'XBMC.RunPlugin(%s)' % (plugin.url_for(add_folder, id=id, name=label.encode("utf8"), path=path))))
+            context_items.append(("[COLOR yellow][B]%s[/B][/COLOR] " % 'Add Folder', 'RunPlugin(%s)' % (plugin.url_for(add_folder, id=id, name=label.encode("utf8"), path=path))))
         items.append(
         {
             'label': fancy_label,
@@ -572,8 +572,8 @@ def stream_search2(channel,regex=False):
                     stream_list.append((id,f,label))
             else:
                 label_search = label.lower().replace(' ','')
-                if label_search in channel_search or channel_search in label_search:
-                    stream_list.append((id,f,label))
+            if label_search in channel_search or channel_search in label_search:
+                stream_list.append((id,f,label))
     if len(stream_list) == 1:
         stream_name = stream_list[0][2]
         stream_link = stream_list[0][1]
@@ -604,13 +604,12 @@ def play_channel(station):
 def alternative_play(station):
     streams = plugin.get_storage('streams')
     if station in streams and streams[station]:
-        xbmc.executebuiltin('XBMC.RunPlugin(%s)' % streams[station])
+        xbmc.executebuiltin('RunPlugin(%s)' % streams[station])
     else:
         choose_stream(station)
 
 @plugin.route('/choose_stream/<station>')
 def choose_stream(station):
-    station = station.decode("utf8")
     streams = plugin.get_storage('channels')
     d = xbmcgui.Dialog()
 
@@ -676,7 +675,7 @@ def choose_stream(station):
                 dir = dirs[selected]
                 path = dir[1]
             else:
-                link = links[selected]
+                link = links[selected - len(dirs)]
                 streams[station] = link[1]
                 name = link[0]
                 return
@@ -775,11 +774,11 @@ def channel_player():
     items = []
     for channel in sorted(channels):
         context_items = []
-        context_items.append(("[COLOR yellow][B]%s[/B][/COLOR] " % 'Choose Stream', 'XBMC.RunPlugin(%s)' % (plugin.url_for(choose_stream, station=channel))))
-        context_items.append(("[COLOR yellow][B]%s[/B][/COLOR] " % 'Add Channel', 'XBMC.RunPlugin(%s)' % (plugin.url_for(add_channel))))
-        context_items.append(("[COLOR yellow][B]%s[/B][/COLOR] " % 'Remove Channel', 'XBMC.RunPlugin(%s)' % (plugin.url_for(remove_this_channel, channel=channel))))
-        context_items.append(("[COLOR yellow][B]%s[/B][/COLOR] " % 'Import Channels', 'XBMC.RunPlugin(%s)' % (plugin.url_for(import_channels))))
-        context_items.append(("[COLOR yellow][B]%s[/B][/COLOR] " % 'Clear Channels', 'XBMC.RunPlugin(%s)' % (plugin.url_for(clear_channels))))
+        context_items.append(("[COLOR yellow][B]%s[/B][/COLOR] " % 'Choose Stream', 'RunPlugin(%s)' % (plugin.url_for(choose_stream, station=channel))))
+        context_items.append(("[COLOR yellow][B]%s[/B][/COLOR] " % 'Add Channel', 'RunPlugin(%s)' % (plugin.url_for(add_channel))))
+        context_items.append(("[COLOR yellow][B]%s[/B][/COLOR] " % 'Remove Channel', 'RunPlugin(%s)' % (plugin.url_for(remove_this_channel, channel=channel))))
+        context_items.append(("[COLOR yellow][B]%s[/B][/COLOR] " % 'Import Channels', 'RunPlugin(%s)' % (plugin.url_for(import_channels))))
+        context_items.append(("[COLOR yellow][B]%s[/B][/COLOR] " % 'Clear Channels', 'RunPlugin(%s)' % (plugin.url_for(clear_channels))))
         items.append(
         {
             'label': channel,
@@ -797,8 +796,8 @@ def index():
     items = []
 
     context_items = []
-    context_items.append(("[COLOR yellow][B]%s[/B][/COLOR] " % 'Clear Folders', 'XBMC.RunPlugin(%s)' % (plugin.url_for(clear))))
-    context_items.append(("[COLOR yellow][B]%s[/B][/COLOR] " % 'Reset Cache', 'XBMC.RunPlugin(%s)' % (plugin.url_for(clear_cache))))
+    context_items.append(("[COLOR yellow][B]%s[/B][/COLOR] " % 'Clear Folders', 'RunPlugin(%s)' % (plugin.url_for(clear))))
+    context_items.append(("[COLOR yellow][B]%s[/B][/COLOR] " % 'Reset Cache', 'RunPlugin(%s)' % (plugin.url_for(clear_cache))))
     items.append(
     {
         'label': u"Folders",
@@ -808,12 +807,12 @@ def index():
     })
 
     context_items = []
-    context_items.append(("[COLOR yellow][B]%s[/B][/COLOR] " % 'Add Channel', 'XBMC.RunPlugin(%s)' % (plugin.url_for(add_channel))))
-    context_items.append(("[COLOR yellow][B]%s[/B][/COLOR] " % 'Remove Channel', 'XBMC.RunPlugin(%s)' % (plugin.url_for(remove_channel))))
-    context_items.append(("[COLOR yellow][B]%s[/B][/COLOR] " % 'Import Channels', 'XBMC.RunPlugin(%s)' % (plugin.url_for(import_channels))))
-    context_items.append(("[COLOR yellow][B]%s[/B][/COLOR] " % 'Export Channels', 'XBMC.RunPlugin(%s)' % (plugin.url_for(export_channels))))
-    context_items.append(("[COLOR yellow][B]%s[/B][/COLOR] " % 'Clear Channels', 'XBMC.RunPlugin(%s)' % (plugin.url_for(clear_channels))))
-    context_items.append(("[COLOR yellow][B]%s[/B][/COLOR] " % 'Make m3u', 'XBMC.RunPlugin(%s)' % (plugin.url_for(make_m3u))))
+    context_items.append(("[COLOR yellow][B]%s[/B][/COLOR] " % 'Add Channel', 'RunPlugin(%s)' % (plugin.url_for(add_channel))))
+    context_items.append(("[COLOR yellow][B]%s[/B][/COLOR] " % 'Remove Channel', 'RunPlugin(%s)' % (plugin.url_for(remove_channel))))
+    context_items.append(("[COLOR yellow][B]%s[/B][/COLOR] " % 'Import Channels', 'RunPlugin(%s)' % (plugin.url_for(import_channels))))
+    context_items.append(("[COLOR yellow][B]%s[/B][/COLOR] " % 'Export Channels', 'RunPlugin(%s)' % (plugin.url_for(export_channels))))
+    context_items.append(("[COLOR yellow][B]%s[/B][/COLOR] " % 'Clear Channels', 'RunPlugin(%s)' % (plugin.url_for(clear_channels))))
+    context_items.append(("[COLOR yellow][B]%s[/B][/COLOR] " % 'Make m3u', 'RunPlugin(%s)' % (plugin.url_for(make_m3u))))
     items.append(
     {
         'label': "Channels",
