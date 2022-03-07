@@ -1,13 +1,12 @@
 import json
-#from xbmcswift2 import xbmc
 import xbmc
 
 class RPCType(type):
     def __getattr__(cls, category):
         return Category(category)
 
-class RPC(object):
-    __metaclass__ = RPCType
+class RPC(object, metaclass=RPCType):
+    pass
     
 class Category(object):
     def __init__(self, name):
@@ -44,10 +43,7 @@ def json_query(query):
     
     xbmc_request = json.dumps(query)
     raw = xbmc.executeJSONRPC(xbmc_request)
-    clean = unicode(raw, 'utf-8', errors='ignore')
-    response = json.loads(clean)
+    response = json.loads(raw)
     if "error" in response:
         raise RPCError(response["error"])
     return response.get('result', response)
-
-    

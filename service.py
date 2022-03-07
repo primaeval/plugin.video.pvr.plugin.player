@@ -1,4 +1,4 @@
-from BaseHTTPServer import BaseHTTPRequestHandler,HTTPServer
+from http.server import BaseHTTPRequestHandler,HTTPServer
 from xbmcgui import ListItem
 #from xbmc import executebuiltin, Player
 import xbmc
@@ -35,8 +35,8 @@ def runService():
 
 class myHandler(BaseHTTPRequestHandler):
     def do_GET(self):
-        print 'HWA:'
-        print dummy_vid_path
+        print('HWA:')
+        print(dummy_vid_path)
         f = open(dummy_vid_path, 'rb')
         self.send_response(200)
         self.send_header('Content-Type', 'video/mp4')
